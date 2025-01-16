@@ -1,11 +1,13 @@
-// import React, { useState } from 'react';
-// import { View, Text, StyleSheet, Button } from 'react-native';
+
+// import React, { useState, useEffect } from 'react';
+// import { View, Text, StyleSheet, Button, Modal, TouchableOpacity } from 'react-native';
 // import { TextInput, HelperText } from 'react-native-paper';
 // import { Picker } from '@react-native-picker/picker';
 // import { useNavigation } from '@react-navigation/native';
 // import { useForm, Controller } from 'react-hook-form';
 // import * as yup from 'yup';
 // import { yupResolver } from '@hookform/resolvers/yup';
+// import { Calendar, DateData } from 'react-native-calendars';
 
 // // Define hospital and doctor data
 // const hospitalData: Record<string, string[]> = {
@@ -14,31 +16,67 @@
 //   "Sunshine Clinic": ["Dr. Joshi", "Dr. Patel"],
 // };
 
+// // Example time slots data (based on the selected date)
+// const availableSlotsData: Record<string, string[]> = {
+//   "2025-01-16": ["9:00 AM - 10:00 AM", "10:00 AM - 11:00 AM"],
+//   "2025-01-17": ["11:00 AM - 12:00 PM", "1:00 PM - 2:00 PM"],
+//   // Add more date-specific time slots here
+// };
+
 // // Validation schema using yup
 // const validationSchema = yup.object().shape({
 //   fullName: yup.string().required('Full Name is required'),
 //   contact: yup
 //     .string()
-//     .matches(/^\d{10}$/, 'Contact number must be 10 digits') // Ensure 10 digits
+//     .matches(/^\d{10}$/, 'Contact number must be 10 digits')
 //     .required('Contact number is required'),
 //   hospital: yup.string().required('Hospital is required'),
 //   doctor: yup.string().required('Doctor is required'),
 //   timeslot: yup.string().required('Timeslot is required'),
+//   date: yup.string().required('Date is required'),
 // });
 
-// const BookAppointment = () => {
+// const BookAppointment = ({ route }: { route: any }) => {
 //   const navigation = useNavigation();
-
 //   const [selectedHospital, setSelectedHospital] = useState<string>('');
 //   const [availableDoctors, setAvailableDoctors] = useState<string[]>([]);
+//   const [selectedDate, setSelectedDate] = useState<string>('');
+//   const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([]);
+//   const [modalVisible, setModalVisible] = useState<boolean>(false); // For showing the calendar modal
 
-//   const { control, handleSubmit, formState: { errors } } = useForm({
+//   const { control, handleSubmit, setValue, formState: { errors } } = useForm({
 //     resolver: yupResolver(validationSchema),
 //   });
 
-//   const onSubmit = (data: any) => {
-//     console.log(data);
-//     navigation.navigate('Home' as never); // Fix: type-casting to 'never' for safe navigation
+//   // Get the function to add appointment from the previous screen (HomePage)
+//   const { addAppointment } = route.params || {};
+
+//   useEffect(() => {
+//     if (selectedDate) {
+//       setAvailableTimeSlots(availableSlotsData[selectedDate] || []);
+//     }
+//   }, [selectedDate]);
+
+//   const onSubmit = async (data: any) => {
+//     try {
+//       const newAppointment = {
+//         id: new Date().toString(), // Generate a unique ID
+//         doctor: data.doctor,
+//         date: data.date, // Use the selected date
+//         time: data.timeslot,
+//         spec: data.hospital, // We can use hospital as specialization
+//       };
+
+//       if (addAppointment) {
+//         // Pass the new appointment to the HomePage
+//         addAppointment(newAppointment);
+//       }
+
+//       // Navigate back to HomePage
+//       navigation.goBack();
+//     } catch (error) {
+//       console.error('Error booking appointment:', error);
+//     }
 //   };
 
 //   const handleHospitalChange = (hospital: string) => {
@@ -46,8 +84,19 @@
 //     setAvailableDoctors(hospitalData[hospital] || []);
 //   };
 
+//   const openDatePicker = () => {
+//     setModalVisible(true); // Open the modal to select a date
+//   };
+
+//   const handleDaySelect = (day: DateData) => {
+//     setSelectedDate(day.dateString); // Set the selected date
+//     setValue('date', day.dateString); // Set the form value
+//     setModalVisible(false); // Close the modal after selecting a date
+//   };
+
 //   return (
 //     <View style={styles.container}>
+//       {/* Full Name */}
 //       <Controller
 //         name="fullName"
 //         control={control}
@@ -70,6 +119,7 @@
 //         )}
 //       />
 
+//       {/* Contact */}
 //       <Controller
 //         name="contact"
 //         control={control}
@@ -79,7 +129,7 @@
 //               label="Contact"
 //               value={field.value}
 //               onChangeText={field.onChange}
-//               keyboardType="numeric" // Allow only numeric input
+//               keyboardType="numeric"
 //               mode="outlined"
 //               style={styles.input}
 //               theme={{ colors: { primary: '#6200ea' } }}
@@ -93,6 +143,7 @@
 //         )}
 //       />
 
+//       {/* Hospital */}
 //       <Controller
 //         name="hospital"
 //         control={control}
@@ -121,6 +172,7 @@
 //         )}
 //       />
 
+//       {/* Doctor */}
 //       <Controller
 //         name="doctor"
 //         control={control}
@@ -131,7 +183,7 @@
 //               selectedValue={field.value}
 //               style={styles.picker}
 //               onValueChange={(itemValue) => field.onChange(itemValue)}
-//               enabled={availableDoctors.length > 0} // Disable if no doctors available
+//               enabled={availableDoctors.length > 0}
 //             >
 //               <Picker.Item label="Select a Doctor" value="" />
 //               {availableDoctors.map((doctor) => (
@@ -147,6 +199,46 @@
 //         )}
 //       />
 
+//       {/* Date */}
+//       <Text style={styles.label}>Select Date</Text>
+//       <Controller
+//         name="date"
+//         control={control}
+//         render={({ field }) => (
+//           <>
+//             <TouchableOpacity onPress={openDatePicker}>
+//               <TextInput
+//                 label="Date"
+//                 value={field.value || selectedDate}
+//                 editable={false} // The date is selected from the calendar, not typed manually
+//                 mode="outlined"
+//                 style={styles.input}
+//                 theme={{ colors: { primary: '#6200ea' } }}
+//               />
+//             </TouchableOpacity>
+//             {errors.date && (
+//               <HelperText type="error" visible={true}>
+//                 {errors.date.message}
+//               </HelperText>
+//             )}
+//           </>
+//         )}
+//       />
+
+//       {/* Modal for Calendar */}
+//       <Modal visible={modalVisible} animationType="slide">
+//         <View style={styles.modalContainer}>
+//           <Calendar
+//             onDayPress={handleDaySelect}
+//             markedDates={{
+//               [selectedDate]: { selected: true, selectedColor: '#6200ea' },
+//             }}
+//           />
+//           <Button title="Close" onPress={() => setModalVisible(false)} color="#6200ea" />
+//         </View>
+//       </Modal>
+
+//       {/* Timeslot */}
 //       <Controller
 //         name="timeslot"
 //         control={control}
@@ -158,9 +250,13 @@
 //               style={styles.picker}
 //               onValueChange={(itemValue) => field.onChange(itemValue)}
 //             >
-//               <Picker.Item label="9:00 AM - 10:00 AM" value="9:00 AM - 10:00 AM" />
-//               <Picker.Item label="10:00 AM - 11:00 AM" value="10:00 AM - 11:00 AM" />
-//               <Picker.Item label="11:00 AM - 12:00 PM" value="11:00 AM - 12:00 PM" />
+//               {availableTimeSlots.length > 0 ? (
+//                 availableTimeSlots.map((slot) => (
+//                   <Picker.Item key={slot} label={slot} value={slot} />
+//                 ))
+//               ) : (
+//                 <Picker.Item label="No available slots for this date" value="" />
+//               )}
 //             </Picker>
 //             {errors.timeslot && (
 //               <HelperText type="error" visible={true}>
@@ -171,8 +267,9 @@
 //         )}
 //       />
 
+//       {/* Submit Button */}
 //       <Button
-//         title="Book Appointment"
+//         title="Save Changes"
 //         onPress={handleSubmit(onSubmit)}
 //         color="#6200ea"
 //       />
@@ -203,17 +300,27 @@
 //     marginBottom: 5,
 //     color: '#333',
 //   },
+//   modalContainer: {
+//     flex: 1,
+//     justifyContent: 'center',
+//     alignItems: 'center',
+//     padding: 20,
+//   },
 // });
 
 // export default BookAppointment;
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, Button } from 'react-native';
+
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, Button, Modal, TouchableOpacity } from 'react-native';
 import { TextInput, HelperText } from 'react-native-paper';
 import { Picker } from '@react-native-picker/picker';
 import { useNavigation } from '@react-navigation/native';
 import { useForm, Controller } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { Calendar, DateData } from 'react-native-calendars';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Define hospital and doctor data
 const hospitalData: Record<string, string[]> = {
@@ -222,7 +329,12 @@ const hospitalData: Record<string, string[]> = {
   "Sunshine Clinic": ["Dr. Joshi", "Dr. Patel"],
 };
 
-// Validation schema using yup
+// Example time slots data (based on the selected date)
+const availableSlotsData: Record<string, string[]> = {
+  "2025-01-16": ["9:00 AM - 10:00 AM", "10:00 AM - 11:00 AM"],
+  "2025-01-17": ["11:00 AM - 12:00 PM", "1:00 PM - 2:00 PM"],
+};
+
 const validationSchema = yup.object().shape({
   fullName: yup.string().required('Full Name is required'),
   contact: yup
@@ -232,45 +344,80 @@ const validationSchema = yup.object().shape({
   hospital: yup.string().required('Hospital is required'),
   doctor: yup.string().required('Doctor is required'),
   timeslot: yup.string().required('Timeslot is required'),
+  date: yup.string().required('Date is required'),
 });
 
 const BookAppointment = ({ route }: { route: any }) => {
   const navigation = useNavigation();
   const [selectedHospital, setSelectedHospital] = useState<string>('');
   const [availableDoctors, setAvailableDoctors] = useState<string[]>([]);
+  const [selectedDate, setSelectedDate] = useState<string>('');
+  const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([]);
+  const [modalVisible, setModalVisible] = useState<boolean>(false); // For showing the calendar modal
 
-  const { control, handleSubmit, formState: { errors } } = useForm({
+  const { control, handleSubmit, setValue, formState: { errors } } = useForm({
     resolver: yupResolver(validationSchema),
   });
 
-  // Get the function to add appointment from the previous screen (HomePage)
-  const { addAppointment } = route.params || {};
-
-  const onSubmit = async (data: any) => {
-    try {
-      const newAppointment = {
-        id: new Date().toString(), // Generate a unique ID
-        doctor: data.doctor,
-        date: data.timeslot.split(' - ')[0], // Take the starting time as the date
-        time: data.timeslot,
-        spec: data.hospital, // We can use hospital as specialization
-      };
-
-      if (addAppointment) {
-        // Pass the new appointment to the HomePage
-        addAppointment(newAppointment);
-      }
-
-      // Navigate back to HomePage
-      navigation.goBack();
-    } catch (error) {
-      console.error('Error booking appointment:', error);
+  useEffect(() => {
+    if (selectedDate) {
+      setAvailableTimeSlots(availableSlotsData[selectedDate] || []);
     }
-  };
+  }, [selectedDate]);
 
   const handleHospitalChange = (hospital: string) => {
     setSelectedHospital(hospital);
     setAvailableDoctors(hospitalData[hospital] || []);
+  };
+
+  const openDatePicker = () => {
+    setModalVisible(true); // Open the modal to select a date
+  };
+
+  const handleDaySelect = (day: DateData) => {
+    setSelectedDate(day.dateString); // Set the selected date
+    setValue('date', day.dateString); // Set the form value
+    setModalVisible(false); // Close the modal after selecting a date
+  };
+
+  const onSubmit = async (data: any) => {
+    try {
+      // Get the stored token
+      const token = await AsyncStorage.getItem('user_token');
+
+      if (!token) {
+        throw new Error('No token found, please log in again.');
+      }
+
+      const newAppointment = {
+        fullname: data.fullName,
+        contact_info: data.contact,
+        date: data.date,
+        timeslot: data.timeslot,
+        reason: "General checkup", // You can adjust this as needed
+        doctorId: data.doctor, // Assume doctor id is in the form value
+        hospitalId: data.hospital, // Assume hospital id is in the form value
+      };
+
+      // Send the request to the backend to create the appointment
+      const response = await axios.post(
+        'http://10.1.6.157:3000/appointment/create', 
+        newAppointment,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+          },
+        }
+      );
+
+      // If appointment is created successfully
+      console.log(response.data);
+
+      // Navigate back after the appointment is booked
+      navigation.goBack();
+    } catch (error) {
+      console.error('Error booking appointment:', error);
+    }
   };
 
   return (
@@ -378,6 +525,45 @@ const BookAppointment = ({ route }: { route: any }) => {
         )}
       />
 
+      {/* Date */}
+      <Text style={styles.label}>Select Date</Text>
+      <Controller
+        name="date"
+        control={control}
+        render={({ field }) => (
+          <>
+            <TouchableOpacity onPress={openDatePicker}>
+              <TextInput
+                label="Date"
+                value={field.value || selectedDate}
+                editable={false} // The date is selected from the calendar, not typed manually
+                mode="outlined"
+                style={styles.input}
+                theme={{ colors: { primary: '#6200ea' } }}
+              />
+            </TouchableOpacity>
+            {errors.date && (
+              <HelperText type="error" visible={true}>
+                {errors.date.message}
+              </HelperText>
+            )}
+          </>
+        )}
+      />
+
+      {/* Modal for Calendar */}
+      <Modal visible={modalVisible} animationType="slide">
+        <View style={styles.modalContainer}>
+          <Calendar
+            onDayPress={handleDaySelect}
+            markedDates={{
+              [selectedDate]: { selected: true, selectedColor: '#6200ea' },
+            }}
+          />
+          <Button title="Close" onPress={() => setModalVisible(false)} color="#6200ea" />
+        </View>
+      </Modal>
+
       {/* Timeslot */}
       <Controller
         name="timeslot"
@@ -390,9 +576,13 @@ const BookAppointment = ({ route }: { route: any }) => {
               style={styles.picker}
               onValueChange={(itemValue) => field.onChange(itemValue)}
             >
-              <Picker.Item label="9:00 AM - 10:00 AM" value="9:00 AM - 10:00 AM" />
-              <Picker.Item label="10:00 AM - 11:00 AM" value="10:00 AM - 11:00 AM" />
-              <Picker.Item label="11:00 AM - 12:00 PM" value="11:00 AM - 12:00 PM" />
+              {availableTimeSlots.length > 0 ? (
+                availableTimeSlots.map((slot) => (
+                  <Picker.Item key={slot} label={slot} value={slot} />
+                ))
+              ) : (
+                <Picker.Item label="No available slots for this date" value="" />
+              )}
             </Picker>
             {errors.timeslot && (
               <HelperText type="error" visible={true}>
@@ -405,7 +595,7 @@ const BookAppointment = ({ route }: { route: any }) => {
 
       {/* Submit Button */}
       <Button
-        title="Book Appointment"
+        title="Save Changes"
         onPress={handleSubmit(onSubmit)}
         color="#6200ea"
       />
@@ -436,6 +626,13 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     color: '#333',
   },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
 });
 
 export default BookAppointment;
+
