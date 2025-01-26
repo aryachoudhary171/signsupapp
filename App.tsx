@@ -157,6 +157,78 @@
 // export default App;
 
 
+// import React from 'react';
+// import { NavigationContainer } from '@react-navigation/native';
+// import { createStackNavigator } from '@react-navigation/stack';
+// import HomeScreen from './src/HomeScreen';
+// import SignupScreen from './src/Signupscreen';
+// import SignupPage from './src/SignupPage';
+// import VerifyEmailScreen from './src/VerifyEmailScreen';
+// import LoginScreen from './src/LoginPAge';
+// import DashboardWithDrawer from './src/Dashboard'; // Dashboard with Drawer
+// import AddAppointment from './src/addAppointment';
+// import BookAppointment from './src/BookAppointment';
+// import ProfileScreen from './src/Profile';
+
+// export type Appointment = {
+//   id: string;
+//   doctor: string;
+//   date: string;
+//   time: string;
+//   hospital: string;
+//   reason: string;
+//   name: string;
+//   contact: string;
+// };
+
+// export type RootStackParamList = {
+//   Home: undefined;
+//   SignupScreen: undefined;
+//   SignupPage: undefined;
+//   VerifyEmailScreen: undefined;
+//   Login: undefined;
+//   Dashboard: undefined;
+//   AddAppointment: { newAppointment?: Appointment } | undefined; // Allows passing new appointment details
+//   ProfileScreen: undefined;
+//   BookAppointment: undefined; // No params required for this screen
+//     PatientRepository: undefined; // Add this line
+
+// };
+
+// const Stack = createStackNavigator<RootStackParamList>();
+
+// const App = () => {
+//   return (
+//     <NavigationContainer>
+//       <Stack.Navigator screenOptions={{ headerShown: false }}>
+//         {/* Core screens */}
+//         <Stack.Screen name="Home" component={HomeScreen} />
+//         <Stack.Screen name="SignupScreen" component={SignupScreen} />
+//         <Stack.Screen name="SignupPage" component={SignupPage} />
+//         <Stack.Screen name="VerifyEmailScreen" component={VerifyEmailScreen} />
+//         <Stack.Screen name="Login" component={LoginScreen} />
+        
+//         {/* Dynamic navigation screens */}
+//         <Stack.Screen name="Dashboard" component={DashboardWithDrawer} />
+//         <Stack.Screen name="AddAppointment" component={AddAppointment} />
+//         <Stack.Screen name="BookAppointment" component={BookAppointment} />
+//         <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
+//       </Stack.Navigator>
+//     </NavigationContainer>
+//   );
+// };
+
+// export default App;
+
+
+
+
+
+
+
+
+
+
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -165,10 +237,11 @@ import SignupScreen from './src/Signupscreen';
 import SignupPage from './src/SignupPage';
 import VerifyEmailScreen from './src/VerifyEmailScreen';
 import LoginScreen from './src/LoginPAge';
-import DashboardWithDrawer from './src/Dashboard'; // Dashboard with Drawer
+import DashboardWithDrawer from './src/Dashboard';
 import AddAppointment from './src/addAppointment';
 import BookAppointment from './src/BookAppointment';
 import ProfileScreen from './src/Profile';
+import PatientRepository from './src/PatientRepository';
 
 export type Appointment = {
   id: string;
@@ -188,9 +261,10 @@ export type RootStackParamList = {
   VerifyEmailScreen: undefined;
   Login: undefined;
   Dashboard: undefined;
-  AddAppointment: { newAppointment?: Appointment } | undefined; // Allows passing new appointment details
+  AddAppointment: { newAppointment?: Appointment } | undefined;
   ProfileScreen: undefined;
-  BookAppointment: undefined; // No params required for this screen
+  BookAppointment: undefined;
+  PatientRepository: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -199,18 +273,16 @@ const App = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {/* Core screens */}
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="SignupScreen" component={SignupScreen} />
         <Stack.Screen name="SignupPage" component={SignupPage} />
         <Stack.Screen name="VerifyEmailScreen" component={VerifyEmailScreen} />
         <Stack.Screen name="Login" component={LoginScreen} />
-        
-        {/* Dynamic navigation screens */}
         <Stack.Screen name="Dashboard" component={DashboardWithDrawer} />
         <Stack.Screen name="AddAppointment" component={AddAppointment} />
         <Stack.Screen name="BookAppointment" component={BookAppointment} />
         <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
+        <Stack.Screen name="PatientRepository" component={PatientRepository} />
       </Stack.Navigator>
     </NavigationContainer>
   );

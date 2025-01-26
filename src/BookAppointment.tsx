@@ -765,6 +765,17 @@
 // export default BookAppointment;
 
 
+
+
+
+
+
+
+
+
+
+
+
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Button, Modal, TouchableOpacity } from 'react-native';
 import { TextInput, HelperText, IconButton } from 'react-native-paper';
@@ -1092,3 +1103,16 @@ const styles = StyleSheet.create({
 });
 
 export default BookAppointment;
+
+
+
+
+
+
+
+
+
+
+
+
+
