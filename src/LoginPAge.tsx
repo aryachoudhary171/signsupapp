@@ -1,361 +1,523 @@
 
 // import React, { useState } from 'react';
-// import { View, StyleSheet, TouchableOpacity, ImageBackground } from 'react-native';
-// import { TextInput, Button, Text, HelperText } from 'react-native-paper';
+// import { View, StyleSheet, Text, TextInput, TouchableOpacity } from 'react-native';
+// import { Button, Snackbar } from 'react-native-paper';
 // import { useForm, Controller } from 'react-hook-form';
-// import * as Yup from 'yup';
+// import * as yup from 'yup';
 // import { yupResolver } from '@hookform/resolvers/yup';
-// import { login } from '../src/services/authservice';
-// import Icon from 'react-native-vector-icons/MaterialCommunityIcons'; // Install react-native-vector-icons if not already done
+// import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
-// const validationSchema = Yup.object().shape({
-//   email: Yup.string()
-//     .email('Please enter a valid email address')
-//     .required('Email is required'),
-//   password: Yup.string()
-//     .min(6, 'Password must be at least 6 characters')
-//     .required('Password is required'),
+// // Validation schema
+// const schema = yup.object({
+//     email: yup
+//         .string()
+//         .email('Invalid email address')
+//         .required('Email is required')
+//         .test('domain', 'Email domain must be gmail.com', (value) => {
+//             return value?.endsWith('@gmail.com');
+//         }),
+//     password: yup
+//         .string()
+//         .required('Password is required')
+//         .min(6, 'Password must be at least 6 characters long')
+//         .matches(/[A-Z]/, 'Password must contain at least one uppercase letter')
+//         .matches(/[!@#$%^&*(),.?":{}|<>]/, 'Password must contain at least one special character'),
 // });
 
-// const LoginPage = ({ navigation }: any) => {
-//   const [showPassword, setShowPassword] = useState(false);
-//   const { control, handleSubmit, formState: { errors } } = useForm({
-//     resolver: yupResolver(validationSchema),
-//   });
-
-//   const handleLogin = async (data: { email: string, password: string }) => {
-//     try {
-//       const response = await login(data);
-//       alert('Login Successful');
-//       navigation.navigate('Home');
-//     } catch (error) {
-//       alert(error);
-//     }
-//   };
-
-//   return (
-//     <View style={styles.container}>
-//       <ImageBackground
-//         source={require('../assets/patient.png')}
-//         style={styles.imageBackground}
-//         resizeMode="cover"
-//       />
-//       <View style={styles.loginContainer}>
-//         <Text style={styles.header}>Login</Text>
-
-//         <Controller
-//           control={control}
-//           name="email"
-//           render={({ field: { onChange, onBlur, value } }) => (
-//             <>
-//               <TextInput
-//                 label="Email"
-//                 value={value}
-//                 onChangeText={onChange}
-//                 onBlur={onBlur}
-//                 style={styles.input}
-//                 keyboardType="email-address"
-//                 error={!!errors.email}
-//               />
-//               {errors.email && (
-//                 <HelperText type="error" visible={!!errors.email}>
-//                   {errors.email.message}
-//                 </HelperText>
-//               )}
-//             </>
-//           )}
-//         />
-
-//         <Controller
-//           control={control}
-//           name="password"
-//           render={({ field: { onChange, onBlur, value } }) => (
-//             <>
-//               <TextInput
-//                 label="Password"
-//                 value={value}
-//                 onChangeText={onChange}
-//                 onBlur={onBlur}
-//                 secureTextEntry={!showPassword}
-//                 style={styles.input}
-//                 error={!!errors.password}
-//                 right={
-//                   <TextInput.Icon
-//                     icon={showPassword ? 'eye-off' : 'eye'}
-//                     onPress={() => setShowPassword(!showPassword)}
-//                     size={20}
-//                     color="blue"
-//                   />
-//                 }
-//               />
-//               {errors.password && (
-//                 <HelperText type="error" visible={!!errors.password}>
-//                   {errors.password.message}
-//                 </HelperText>
-//               )}
-//             </>
-//           )}
-//         />
-
-//         <Button mode="contained" onPress={handleSubmit(handleLogin)} style={styles.button}>
-//           Log In
-//         </Button>
-
-//         <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
-//           <Text style={styles.forgotPassword}>Forgot your password?</Text>
-//         </TouchableOpacity>
-
-//         <TouchableOpacity onPress={() => navigation.navigate('Signup')} style={styles.signupContainer}>
-//           <Text style={styles.signupText}>
-//             Don't have an account?{' '}
-//             <Text style={styles.signupLink}>Sign up</Text>
-//           </Text>
-//         </TouchableOpacity>
-//       </View>
-//     </View>
-//   );
+// type FormData = {
+//     email: string;
+//     password: string;
 // };
 
+// export default function LoginScreen() {
+//     const [showPassword, setShowPassword] = useState(false);
+//     const [snackbarVisible, setSnackbarVisible] = useState(false);
+//     const [snackbarMessage, setSnackbarMessage] = useState('');
+//     const [snackbarType, setSnackbarType] = useState<'success' | 'error'>('success');
+
+//     const { control, handleSubmit, formState: { errors } } = useForm<FormData>({
+//         resolver: yupResolver(schema),
+//     });
+
+//     const onSubmit = (data: FormData) => {
+//         console.log(data);
+//         if (data.email.endsWith('@gmail.com')) {
+//             setSnackbarMessage('Login successful!');
+//             setSnackbarType('success');
+//         } else {
+//             setSnackbarMessage('Invalid email domain!');
+//             setSnackbarType('error');
+//         }
+//         setSnackbarVisible(true);
+//     };
+
+//     return (
+//         <View style={styles.container}>
+//             {/* Icon for app name */}
+//             <View style={styles.iconContainer}>
+//                 <Icon name="stethoscope" size={60} color="#2f4858" />
+//                 <Text style={styles.appName}>Patient Centric</Text>
+//             </View>
+
+//             <View style={styles.content}>
+//                 <Text style={styles.welcomeText}>Hi, Welcome Back!</Text>
+//                 <Text style={styles.subtitle}>Hope you’re doing fine.</Text>
+
+//                 {/* Email Field */}
+//                 <Controller
+//                     control={control}
+//                     name="email"
+//                     render={({ field: { onChange, onBlur, value } }) => (
+//                         <TextInput
+//                             style={[styles.inputField, errors.email && styles.errorInput]}
+//                             placeholder="Your Email"
+//                             keyboardType="email-address"
+//                             onBlur={onBlur}
+//                             onChangeText={onChange}
+//                             value={value}
+//                         />
+//                     )}
+//                 />
+//                 {errors.email && <Text style={styles.errorText}>{errors.email.message}</Text>}
+
+//                 {/* Password Field */}
+//                 <Controller
+//                     control={control}
+//                     name="password"
+//                     render={({ field: { onChange, onBlur, value } }) => (
+//                         <View style={styles.passwordContainer}>
+//                             <TextInput
+//                                 style={[styles.inputField, errors.password && styles.errorInput]}
+//                                 placeholder="Password"
+//                                 secureTextEntry={!showPassword}
+//                                 onBlur={onBlur}
+//                                 onChangeText={onChange}
+//                                 value={value}
+//                             />
+//                             <TouchableOpacity
+//                                 style={styles.eyeIcon}
+//                                 onPress={() => setShowPassword(!showPassword)}
+//                             >
+//                                 <Icon name={showPassword ? "eye" : "eye-off"} size={20} color="#888" />
+//                             </TouchableOpacity>
+//                         </View>
+//                     )}
+//                 />
+//                 {errors.password && <Text style={styles.errorText}>{errors.password.message}</Text>}
+
+//                 <Button mode="contained" style={styles.signInButton} onPress={handleSubmit(onSubmit)}>
+//                     Login 
+//                 </Button>
+
+//                 <Text style={styles.orText}>or</Text>
+
+//                 <TouchableOpacity style={styles.socialButton} onPress={() => {}}>
+//                     <Icon name="google" size={24} color="#2f4858" style={styles.socialIcon} />
+//                     <Text style={styles.socialButtonText}>Sign In with Google</Text>
+//                 </TouchableOpacity>
+
+//                 <TouchableOpacity onPress={() => {}}>
+//                     <Text style={styles.forgotPassword}>Forgot password?</Text>
+//                 </TouchableOpacity>
+
+//                 <Text style={styles.signUpText}>
+//                     Don’t have an account yet?{' '}
+//                     <Text style={styles.signUpLink} onPress={() => {}}>
+//                         Sign up
+//                     </Text>
+//                 </Text>
+//             </View>
+
+//             {/* Snackbar for feedback */}
+//             <Snackbar
+//                 visible={snackbarVisible}
+//                 onDismiss={() => setSnackbarVisible(false)}
+//                 style={snackbarType === 'success' ? styles.successSnackbar : styles.errorSnackbar}
+//                 duration={3000}
+//             >
+//                 {snackbarMessage}
+//             </Snackbar>
+//         </View>
+//     );
+// }
+
 // const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     backgroundColor: '#f5f5f5',
-//   },
-//   imageBackground: {
-//     flex: 1,
-//     resizeMode: 'cover',
-//   },
-//   loginContainer: {
-//     flex: 2,
-//     padding: 16,
-//     backgroundColor: '#fff',
-//     borderTopLeftRadius: 20,
-//     borderTopRightRadius: 20,
-//     shadowColor: '#000',
-//     shadowOffset: { width: 0, height: -2 },
-//     shadowOpacity: 0.2,
-//     shadowRadius: 4,
-//     width: '97%',
-//     elevation: 5,
-//   },
-//   header: {
-//     fontSize: 30,
-//     marginBottom: 20,
-//     textAlign: 'center',
-//   },
-//   input: {
-//     marginBottom: 10,
-//   },
-//   button: {
-//     marginTop: 20,
-//   },
-//   forgotPassword: {
-//     marginTop: 15,
-//     textAlign: 'center',
-//     color: '#007BFF',
-//   },
-//   signupContainer: {
-//     marginTop: 15,
-//     textAlign: 'center',
-//   },
-//   signupText: {
-//     textAlign: 'center',
-//   },
-//   signupLink: {
-//     color: '#007BFF',
-//     fontWeight: 'bold',
-//   },
+//     container: {
+//         flex: 1,
+//         backgroundColor: '#f8f8f8',
+//         alignItems: 'center',
+//     },
+//     iconContainer: {
+//         marginTop: 40,
+//         alignItems: 'center',
+//     },
+//     appName: {
+//         fontSize: 24,
+//         fontWeight: '600',
+//         color: '#2f4858',
+//         marginVertical: 12,
+//     },
+//     content: {
+//         width: '90%',
+//         marginTop: 20,
+//         padding: 20,
+//         backgroundColor: '#ffffff',
+//         borderRadius: 12,
+//         elevation: 4,
+//     },
+//     welcomeText: {
+//         fontSize: 22,
+//         color: '#2f4858',
+//         textAlign: 'center',
+//     },
+//     subtitle: {
+//         fontSize: 14,
+//         color: '#888888',
+//         textAlign: 'center',
+//         marginVertical: 8,
+//     },
+//     inputField: {
+//         width: '100%',
+//         padding: 12,
+//         marginVertical: 8,
+//         borderWidth: 1,
+//         borderColor: '#dddddd',
+//         borderRadius: 8,
+//         fontSize: 14,
+//     },
+//     passwordContainer: {
+//         position: 'relative',
+//         width: '100%',
+//     },
+//     eyeIcon: {
+//         position: 'absolute',
+//         right: 12,
+//         top: 14,
+//     },
+//     errorInput: {
+//         borderColor: 'red',
+//     },
+//     errorText: {
+//         color: 'red',
+//         fontSize: 12,
+//         marginBottom: 8,
+//     },
+//     signInButton: {
+//         backgroundColor: '#2f4858',
+//         marginVertical: 8,
+//     },
+//     orText: {
+//         textAlign: 'center',
+//         fontSize: 14,
+//         color: '#888888',
+//         marginVertical: 12,
+//     },
+//     socialButton: {
+//         flexDirection: 'row',
+//         alignItems: 'center',
+//         justifyContent: 'center',
+//         padding: 12,
+//         marginVertical: 6,
+//         borderWidth: 1,
+//         borderColor: '#dddddd',
+//         borderRadius: 8,
+//         backgroundColor: '#ffffff',
+//     },
+//     socialIcon: {
+//         marginRight: 8,
+//     },
+//     socialButtonText: {
+//         fontSize: 14,
+//         color: '#2f4858',
+//     },
+//     forgotPassword: {
+//         marginTop: 16,
+//         fontSize: 14,
+//         color: '#2f4858',
+//         textAlign: 'center',
+//     },
+//     signUpText: {
+//         marginTop: 16,
+//         fontSize: 14,
+//         textAlign: 'center',
+//     },
+//     signUpLink: {
+//         color: '#2f4858',
+//         fontWeight: 'bold',
+//     },
+//     successSnackbar: {
+//         backgroundColor: '#4CAF50',
+//     },
+//     errorSnackbar: {
+//         backgroundColor: '#F44336',
+//     },
 // });
 
-// export default LoginPage;
-
-
+// LoginPAge.tsx
 import React, { useState } from 'react';
-import { View, StyleSheet, TouchableOpacity, ImageBackground } from 'react-native';
-import { TextInput, Button, Text, HelperText, Snackbar } from 'react-native-paper';
+import { View, StyleSheet, Text, TextInput, TouchableOpacity } from 'react-native';
+import { Button, Snackbar } from 'react-native-paper';
 import { useForm, Controller } from 'react-hook-form';
-import * as Yup from 'yup';
+import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { login } from '../src/services/authservice';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons'; // Install react-native-vector-icons if not already done
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 
-const validationSchema = Yup.object().shape({
-  email: Yup.string()
-    .email('Please enter a valid email address')
-    .required('Email is required'),
-  password: Yup.string()
-    .min(6, 'Password must be at least 6 characters')
-    .required('Password is required'),
+// Import the named export for RootStackParamList
+import { RootStackParamList } from '../App'; 
+
+// Validation schema
+const schema = yup.object({
+    email: yup
+        .string()
+        .email('Invalid email address')
+        .required('Email is required')
+        .test('domain', 'Email domain must be gmail.com', (value) => {
+            return value?.endsWith('@gmail.com');
+        }),
+    password: yup
+        .string()
+        .required('Password is required')
+        .min(6, 'Password must be at least 6 characters long')
+        .matches(/[A-Z]/, 'Password must contain at least one uppercase letter')
+        .matches(/[!@#$%^&*(),.?":{}|<>]/, 'Password must contain at least one special character'),
 });
 
-const LoginPage = ({ navigation }: any) => {
-  const [showPassword, setShowPassword] = useState(false);
-  const [snackbarVisible, setSnackbarVisible] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [snackbarColor, setSnackbarColor] = useState('red');
-
-  const { control, handleSubmit, formState: { errors } } = useForm({
-    resolver: yupResolver(validationSchema),
-  });
-
-  const handleLogin = async (data: { email: string, password: string }) => {
-    try {
-      const response = await login(data);
-      setSnackbarMessage('Login Successful');
-      setSnackbarColor('green');
-      setSnackbarVisible(true);
-      setTimeout(() => {
-        navigation.navigate('Home');
-      }, 3000);
-    } catch (error) {
-      setSnackbarMessage('Login failed. Please try again.');
-      setSnackbarColor('red');
-      setSnackbarVisible(true);
-    }
-  };
-
-  return (
-    <View style={styles.container}>
-      <ImageBackground
-        source={require('../assets/patient.png')}
-        style={styles.imageBackground}
-        resizeMode="cover"
-      />
-      <View style={styles.loginContainer}>
-        <Text style={styles.header}>Login</Text>
-
-        <Controller
-          control={control}
-          name="email"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <>
-              <TextInput
-                label="Email"
-                value={value}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                style={styles.input}
-                keyboardType="email-address"
-                error={!!errors.email}
-              />
-              {errors.email && (
-                <HelperText type="error" visible={!!errors.email}>
-                  {errors.email.message}
-                </HelperText>
-              )}
-            </>
-          )}
-        />
-
-        <Controller
-          control={control}
-          name="password"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <>
-              <TextInput
-                label="Password"
-                value={value}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                secureTextEntry={!showPassword}
-                style={styles.input}
-                error={!!errors.password}
-                right={
-                  <TextInput.Icon
-                    icon={showPassword ? 'eye-off' : 'eye'}
-                    onPress={() => setShowPassword(!showPassword)}
-                    size={20}
-                    color="blue"
-                  />
-                }
-              />
-              {errors.password && (
-                <HelperText type="error" visible={!!errors.password}>
-                  {errors.password.message}
-                </HelperText>
-              )}
-            </>
-          )}
-        />
-
-        <Button mode="contained" onPress={handleSubmit(handleLogin)} style={styles.button}>
-          Log In
-        </Button>
-
-        <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
-          <Text style={styles.forgotPassword}>Forgot your password?</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={() => navigation.navigate('Signup')} style={styles.signupContainer}>
-          <Text style={styles.signupText}>
-            Don't have an account?{' '}
-            <Text style={styles.signupLink}>Sign up</Text>
-          </Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Snackbar for feedback */}
-      <Snackbar
-        visible={snackbarVisible}
-        onDismiss={() => setSnackbarVisible(false)}
-        duration={3000}
-        style={{ backgroundColor: snackbarColor }}
-      >
-        {snackbarMessage}
-      </Snackbar>
-    </View>
-  );
+type FormData = {
+    email: string;
+    password: string;
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  imageBackground: {
-    flex: 1,
-    resizeMode: 'cover',
-  },
-  loginContainer: {
-    flex: 2,
-    padding: 16,
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    width: '97%',
-    elevation: 5,
-  },
-  header: {
-    fontSize: 30,
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  input: {
-    marginBottom: 10,
-  },
-  button: {
-    marginTop: 20,
-  },
-  forgotPassword: {
-    marginTop: 15,
-    textAlign: 'center',
-    color: '#007BFF',
-  },
-  signupContainer: {
-    marginTop: 15,
-    textAlign: 'center',
-  },
-  signupText: {
-    textAlign: 'center',
-  },
-  signupLink: {
-    color: '#007BFF',
-    fontWeight: 'bold',
-  },
-});
+type LoginScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Login'>; // Correct type for navigation
 
-export default LoginPage;
+export default function LoginScreen() {
+    const [showPassword, setShowPassword] = useState(false);
+    const [snackbarVisible, setSnackbarVisible] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState('');
+    const [snackbarType, setSnackbarType] = useState<'success' | 'error'>('success');
+
+    const { control, handleSubmit, formState: { errors } } = useForm<FormData>({
+        resolver: yupResolver(schema),
+    });
+
+    const navigation = useNavigation<LoginScreenNavigationProp>();
+
+    const onSubmit = (data: FormData) => {
+        console.log(data);
+
+        if (data.email.endsWith('@gmail.com')) {
+            setSnackbarMessage('Login successful!');
+            setSnackbarType('success');
+            navigation.navigate('Dashboard');
+        } else {
+            setSnackbarMessage('Invalid email domain!');
+            setSnackbarType('error');
+        }
+
+        setSnackbarVisible(true);
+    };
+
+    return (
+        <View style={styles.container}>
+            <View style={styles.iconContainer}>
+                <Icon name="stethoscope" size={60} color="#2f4858" />
+                <Text style={styles.appName}>Patient Centric</Text>
+            </View>
+
+            <View style={styles.content}>
+                <Text style={styles.welcomeText}>Hi, Welcome Back!</Text>
+                <Text style={styles.subtitle}>Hope you’re doing fine.</Text>
+
+                {/* Email Field */}
+                <Controller
+                    control={control}
+                    name="email"
+                    render={({ field: { onChange, onBlur, value } }) => (
+                        <TextInput
+                            style={[styles.inputField, errors.email && styles.errorInput]}
+                            placeholder="Your Email"
+                            keyboardType="email-address"
+                            onBlur={onBlur}
+                            onChangeText={onChange}
+                            value={value}
+                        />
+                    )}
+                />
+                {errors.email && <Text style={styles.errorText}>{errors.email.message}</Text>}
+
+                {/* Password Field */}
+                <Controller
+                    control={control}
+                    name="password"
+                    render={({ field: { onChange, onBlur, value } }) => (
+                        <View style={styles.passwordContainer}>
+                            <TextInput
+                                style={[styles.inputField, errors.password && styles.errorInput]}
+                                placeholder="Password"
+                                secureTextEntry={!showPassword}
+                                onBlur={onBlur}
+                                onChangeText={onChange}
+                                value={value}
+                            />
+                            <TouchableOpacity
+                                style={styles.eyeIcon}
+                                onPress={() => setShowPassword(!showPassword)}
+                            >
+                                <Icon name={showPassword ? "eye" : "eye-off"} size={20} color="#888" />
+                            </TouchableOpacity>
+                        </View>
+                    )}
+                />
+                {errors.password && <Text style={styles.errorText}>{errors.password.message}</Text>}
+
+                <Button mode="contained" style={styles.signInButton} onPress={handleSubmit(onSubmit)}>
+                    Login 
+                </Button>
+
+                <Text style={styles.orText}>or</Text>
+
+                <TouchableOpacity style={styles.socialButton} onPress={() => {}}>
+                    <Icon name="google" size={24} color="#2f4858" style={styles.socialIcon} />
+                    <Text style={styles.socialButtonText}>Sign In with Google</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity onPress={() => {}}>
+                    <Text style={styles.forgotPassword}>Forgot password?</Text>
+                </TouchableOpacity>
+
+                <Text style={styles.signUpText}>
+                    Don’t have an account yet?{' '}
+                    <Text style={styles.signUpLink} onPress={() => {}}>
+                        Login
+                    </Text>
+                </Text>
+            </View>
+
+            {/* Snackbar for feedback */}
+            <Snackbar
+                visible={snackbarVisible}
+                onDismiss={() => setSnackbarVisible(false)}
+                style={snackbarType === 'success' ? styles.successSnackbar : styles.errorSnackbar}
+                duration={3000}
+            >
+                {snackbarMessage}
+            </Snackbar>
+        </View>
+    );
+}
+
+const styles = StyleSheet.create({
+    // Styles here (same as previously provided)
+
+
+    container: {
+        flex: 1,
+        backgroundColor: '#f8f8f8',
+        alignItems: 'center',
+    },
+    iconContainer: {
+        marginTop: 40,
+        alignItems: 'center',
+    },
+    appName: {
+        fontSize: 24,
+        fontWeight: '600',
+        color: '#2f4858',
+        marginVertical: 12,
+    },
+    content: {
+        width: '90%',
+        marginTop: 20,
+        padding: 20,
+        backgroundColor: '#ffffff',
+        borderRadius: 12,
+        elevation: 4,
+    },
+    welcomeText: {
+        fontSize: 22,
+        color: '#2f4858',
+        textAlign: 'center',
+    },
+    subtitle: {
+        fontSize: 14,
+        color: '#888888',
+        textAlign: 'center',
+        marginVertical: 8,
+    },
+    inputField: {
+        width: '100%',
+        padding: 12,
+        marginVertical: 8,
+        borderWidth: 1,
+        borderColor: '#dddddd',
+        borderRadius: 8,
+        fontSize: 14,
+    },
+    passwordContainer: {
+        position: 'relative',
+        width: '100%',
+    },
+    eyeIcon: {
+        position: 'absolute',
+        right: 12,
+        top: 14,
+    },
+    errorInput: {
+        borderColor: 'red',
+    },
+    errorText: {
+        color: 'red',
+        fontSize: 12,
+        marginBottom: 8,
+    },
+    signInButton: {
+        backgroundColor: '#2f4858',
+        marginVertical: 8,
+    },
+    orText: {
+        textAlign: 'center',
+        fontSize: 14,
+        color: '#888888',
+        marginVertical: 12,
+    },
+    socialButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 12,
+        marginVertical: 6,
+        borderWidth: 1,
+        borderColor: '#dddddd',
+        borderRadius: 8,
+        backgroundColor: '#ffffff',
+    },
+    socialIcon: {
+        marginRight: 8,
+    },
+    socialButtonText: {
+        fontSize: 14,
+        color: '#2f4858',
+    },
+    forgotPassword: {
+        marginTop: 16,
+        fontSize: 14,
+        color: '#2f4858',
+        textAlign: 'center',
+    },
+    signUpText: {
+        marginTop: 16,
+        fontSize: 14,
+        textAlign: 'center',
+    },
+    signUpLink: {
+        color: '#2f4858',
+        fontWeight: 'bold',
+    },
+    successSnackbar: {
+        backgroundColor: '#4CAF50',
+    },
+    errorSnackbar: {
+        backgroundColor: '#F44336',
+    },
+});
